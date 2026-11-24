@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>英语钓鱼池 · 抛竿版</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+    background: radial-gradient(ellipse at 50% 0%, #0f4d75 0%, #082a42 48%, #04141f 100%);
+    color: #eaf6ff;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* ================= 首页 ================= */
+  .home {
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 22px 18px; gap: 6px;
+  }
+  .logo {
+    font-size: clamp(26px, 5.6vw, 44px); margin: 0; letter-spacing: 3px; font-weight: 800;
+    background: linear-gradient(90deg, #7fe0ff, #4fc3f7, #ffd54f);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .sub { color: #8fb6cf; font-size: 14px; margin: 2px 0 16px; letter-spacing: .5px; }
+  .roles { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .role-card {
+    width: 246px; border-radius: 22px; padding: 20px 18px; cursor: pointer; text-align: center;
+    border: 2px solid rgba(255,255,255,.13); background: rgba(255,255,255,.05);
+    transition: .22s cubic-bezier(.2,.8,.3,1); backdrop-filter: blur(6px);
+  }
+  .role-card:hover { transform: translateY(-6px); background: rgba(255,255,255,.09); }
+  .role-card.brother:hover { border-color: #4fc3f7; box-shadow: 0 14px 40px rgba(79,195,247,.25); }
+  .role-card.sister:hover  { border-color: #ffd54f; box-shadow: 0 14px 40px rgba(255,213,79,.25); }
+  .role-emoji { font-size: 42px; line-height: 1; margin-bottom: 8px; }
+  .role-name { font-size: 19px; font-weight: 700; margin-bottom: 6px; }
+  .role-card.brother .role-name { color: #7fd8ff; }
+  .role-card.sister  .role-name { color: #ffd76b; }
+  .role-desc { font-size: 13px; color: #b6d3e6; line-height: 1.55; }
+  .role-meta { font-size: 12px; color: #6f95ad; margin-top: 8px; }
+  .legend { display: flex; gap: 22px; margin-top: 18px; font-size: 13px; color: #9dc0d6; }
+  .legend span { display: flex; align-items: center; gap: 7px; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+  .dot.blue { background: #4fc3f7; box-shadow: 0 0 12px #4fc3f7; }
+  .dot.yellow { background: #ffd54f; box-shadow: 0 0 12px #ffd54f; }
+
+  .spec-title { margin-top: 18px; font-size: 12px; color: #6f95ad; letter-spacing: 1px; }
+  .spec-strip {
+    margin-top: 8px; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 7px; max-width: 560px; width: 100%; min-width: 0; padding: 6px 4px 10px;
+  }
+  .spec-strip::-webkit-scrollbar { display: none; }
+  .spec {
+    width: 100%; min-width: 0; padding: 6px 3px 4px; border-radius: 12px;
+    background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.09); text-align: center;
+    overflow: hidden;
+  }
+  .spec svg { width: 54px; height: 32px; max-width: 100%; display: block; margin: 0 auto; }
+  .spec span { display: block; font-size: 8.5px; color: #8fb6cf; margin-top: 3px; letter-spacing: .1px; white-space: nowrap; }
+
+  /* ================= 游戏页 ================= */
+  .game { display: none; height: 100vh; height: 100dvh; flex-direction: column; padding: 8px 10px 10px;
+    width: 100%; max-width: 100%; min-width: 0; overflow: hidden; }
+  .game.active { display: flex; }
+
+  .hud { display: flex; align-items: center; gap: 10px; padding: 2px 2px 7px; min-width: 0;
+    width: 100%; max-width: 100%; overflow: hidden; flex: 0 0 auto; }
+  .icon-btn {
+    width: 38px; height: 38px; border-radius: 11px; border: 1px solid rgba(255,255,255,.15);
+    background: rgba(255,255,255,.06); color: #cfe6f5; font-size: 17px; cursor: pointer;
+    transition: .15s; flex-shrink: 0;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,.14); }
+  .hud-title { flex: 1 1 0; width: 0; min-width: 0; }
+  #roleName { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hud-sub { font-size: 11px; color: #7fa5bd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hud-stats { display: flex; gap: 14px; flex-shrink: 0; }
+  .stat { text-align: center; line-height: 1.15; min-width: 34px; }
+  .stat span { display: block; font-size: 17px; font-weight: 800; color: #7fe0ff; font-variant-numeric: tabular-nums; }
+  .stat small { font-size: 10px; color: #7fa5bd; }
+
+  .progress-track {
+    height: 6px; border-radius: 3px; background: rgba(255,255,255,.08);
+    overflow: hidden; margin-bottom: 8px; flex-shrink: 0; min-width: 0;
+  }
+  .progress-bar {
+    height: 100%; width: 0%; border-radius: 3px;
+    background: linear-gradient(90deg, #37b6f0, #7fe0ff);
+    transition: width .35s ease;
+  }
+
+  /* ================= 鱼塘 ================= */
+  .pond {
+    position: relative; flex: 1 1 auto; min-height: 240px; min-width: 0; border-radius: 20px; overflow: hidden;
+    width: 100%; max-width: 100%;
+    border: 2px solid rgba(120,200,255,.24);
+    background: linear-gradient(180deg, #10699e 0%, #0a4368 52%, #052437 100%);
+    box-shadow: inset 0 0 90px rgba(0,0,0,.55);
+    touch-action: manipulation; cursor: crosshair;
+  }
+  .pond::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+    background:
+      radial-gradient(circle at 18% 12%, rgba(255,255,255,.13), transparent 38%),
+      radial-gradient(circle at 80% 66%, rgba(255,255,255,.08), transparent 42%),
+      radial-gradient(circle at 50% 108%, rgba(0,0,0,.4), transparent 58%);
+  }
+  .caustic {
+    position: absolute; inset: 0; pointer-events: none; z-index: 1; opacity: .5;
+    background:
+      radial-gradient(circle at 26% 18%, rgba(180,235,255,.10), transparent 34%),
+      radial-gradient(circle at 68% 38%, rgba(180,235,255,.07), transparent 30%),
+      radial-gradient(circle at 44% 72%, rgba(180,235,255,.08), transparent 36%);
+    animation: causticMove 12s ease-in-out infinite alternate;
+  }
+  @keyframes causticMove {
+    from { transform: translate3d(-2%, -1%, 0) scale(1.02); }
+    to   { transform: translate3d(2%, 1.5%, 0) scale(1.05); }
+  }
+
+  .fish-layer { position: absolute; inset: 0; z-index: 2; }
+  .scene { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+
+  .fish {
+    position: absolute; left: 0; top: 0; will-change: transform; z-index: 2;
+  }
+  .fish-art {
+    display: block; width: 100%; height: 100%;
+    filter: drop-shadow(0 5px 9px rgba(0,0,0,.35));
+  }
+  .fish-tag {
+    position: absolute; left: 50%; top: -15px; transform: translateX(-50%);
+    white-space: nowrap; font-size: 9.5px; letter-spacing: .5px; padding: 1.5px 7px; border-radius: 20px;
+    color: #dff3ff; background: rgba(3,18,30,.62); border: 1px solid rgba(110,200,255,.42);
+    font-weight: 600; pointer-events: none;
+  }
+  .fish-tag.tg { color: #ffeaa6; border-color: rgba(255,213,79,.5); background: rgba(30,20,0,.55); }
+
+  .hint-bar {
+    position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
+    z-index: 6; font-size: 13px; color: #a9cfe6; letter-spacing: .5px;
+    padding: 5px 14px; border-radius: 20px; background: rgba(4,20,32,.5);
+    border: 1px solid rgba(120,200,255,.2); white-space: nowrap; pointer-events: none;
+    transition: .2s;
+  }
+  .hint-bar.hot {
+    color: #131a00; background: linear-gradient(135deg, #ffe082, #ffb300);
+    border-color: #fff2b8; font-weight: 800;
+    animation: hintPulse .8s ease-in-out infinite;
+  }
+  @keyframes hintPulse { 50% { transform: translateX(-50%) scale(1.06); } }
+
+  .toast {
+    position: absolute; left: 50%; top: 16px; transform: translateX(-50%);
+    z-index: 7; font-size: 13px; padding: 6px 14px; border-radius: 20px;
+    background: rgba(220,60,60,.22); border: 1px solid rgba(255,120,120,.5); color: #ffd9d9;
+    opacity: 0; transition: opacity .2s, transform .2s; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(4px); }
+  .toast.gold { background: rgba(255,190,40,.2); border-color: rgba(255,220,120,.55); color: #fff3c4; }
+
+  .pond.shake { animation: pondShake .26s ease-in-out; }
+  @keyframes pondShake {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-3px, 2px); }
+    50% { transform: translate(3px, -2px); }
+    75% { transform: translate(-2px, -1px); }
+  }
+
+  .pop {
+    position: absolute; z-index: 8; pointer-events: none; font-weight: 800; font-size: 19px;
+    color: #9ff0ff; text-shadow: 0 2px 12px rgba(0,0,0,.75); transform: translate(-50%,-50%);
+    animation: popUp .95s cubic-bezier(.2,.8,.3,1) forwards;
+  }
+  @keyframes popUp {
+    0% { opacity: 0; transform: translate(-50%,-30%) scale(.7); }
+    25% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%,-190%) scale(1.15); }
+  }
+  .pop-fish {
+    position: absolute; z-index: 8; pointer-events: none; font-size: 30px;
+    animation: fishFly 1s cubic-bezier(.2,.9,.3,1) forwards;
+  }
+  @keyframes fishFly {
+    0% { opacity: 1; transform: translate(-50%,-50%) scale(.7) rotate(0deg); }
+    60% { opacity: 1; transform: translate(-50%,-190%) scale(1.2) rotate(-24deg); }
+    100% { opacity: 0; transform: translate(-50%,-260%) scale(1.1) rotate(38deg); }
+  }
+
+  /* ================= 弹窗 ================= */
+  .overlay {
+    position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+    background: rgba(3,15,26,.86); backdrop-filter: blur(4px);
+    z-index: 100; padding: 14px; overflow-y: auto;
+  }
+  .overlay.show { display: flex; }
+  .card {
+    width: min(560px, 94vw); max-height: 90vh; overflow-y: auto;
+    background: linear-gradient(160deg, #12405f, #0b2537);
+    border: 2px solid rgba(120,200,255,.3); border-radius: 22px; padding: 20px;
+    box-shadow: 0 24px 70px rgba(0,0,0,.65); animation: popIn .22s ease-out;
+  }
+  @keyframes popIn { from { transform: scale(.94); opacity: 0; } }
+
+  .qtag { display: inline-block; font-size: 12px; padding: 4px 12px; border-radius: 20px; margin-bottom: 13px; font-weight: 600; }
+  .tw { background: rgba(79,195,247,.16); color: #7fd8ff; border: 1px solid rgba(79,195,247,.45); }
+  .tg { background: rgba(255,213,79,.16); color: #ffd76b; border: 1px solid rgba(255,213,79,.45); }
+
+  .qtext { font-size: clamp(17px, 4.2vw, 21px); line-height: 1.6; margin-bottom: 15px; font-weight: 600; }
+
+  .opts { display: flex; flex-direction: column; }
+  .opt {
+    display: block; width: 100%; text-align: left; padding: 13px 15px; margin: 8px 0;
+    border-radius: 14px; border: 2px solid rgba(120,200,255,.22);
+    background: rgba(255,255,255,.05); color: #eaf6ff;
+    font-size: 16px; font-family: inherit; cursor: pointer; transition: .15s;
+  }
+  .opt:hover:not(:disabled) { background: rgba(80,180,255,.18); border-color: #4fc3f7; transform: translateX(3px); }
+  .opt:disabled { cursor: default; }
+  .opt.correct { background: rgba(76,217,100,.26); border-color: #4cd964; color: #b6ffc4; }
+  .opt.wrong   { background: rgba(255,90,90,.22); border-color: #ff5a5a; color: #ffc0c0; }
+
+  .hint { font-size: 14px; color: #7fa5bd; margin-bottom: 12px; letter-spacing: 3px; word-break: break-all; font-family: ui-monospace, Menlo, monospace; }
+  .spell {
+    width: 100%; padding: 13px 15px; border-radius: 14px; outline: none;
+    border: 2px solid rgba(120,200,255,.3); background: rgba(0,0,0,.32);
+    color: #fff; font-size: 20px; letter-spacing: 2px; font-family: inherit; transition: .15s;
+  }
+  .spell:focus { border-color: #4fc3f7; box-shadow: 0 0 0 3px rgba(79,195,247,.18); }
+
+  .btn {
+    padding: 12px 20px; border-radius: 14px; border: none;
+    font-size: 16px; font-family: inherit; cursor: pointer; font-weight: 700; transition: .15s;
+  }
+  .btn.primary { background: linear-gradient(135deg, #37b6f0, #1e88c7); color: #fff; }
+  .btn.primary:hover { filter: brightness(1.13); transform: translateY(-1px); }
+  .btn.warn { background: linear-gradient(135deg, #ffb74d, #f57c00); color: #2a1500; }
+  .btn.warn:hover { filter: brightness(1.1); }
+  .btn.ghost { background: rgba(255,255,255,.08); color: #cfe6f5; border: 1px solid rgba(255,255,255,.16); }
+  .btn.ghost:hover { background: rgba(255,255,255,.15); }
+
+  .feedback { margin-top: 14px; font-size: 15px; line-height: 1.6; }
+  .ok { color: #6ee787; font-weight: 700; }
+  .no { color: #ff8080; font-weight: 700; }
+  .no b { color: #ffd76b; font-size: 18px; letter-spacing: 1px; }
+  .next { display: block; width: 100%; margin-top: 14px; }
+
+  .result { text-align: center; padding: 4px 0 16px; }
+  .result .big {
+    font-size: 42px; font-weight: 800; line-height: 1.2;
+    background: linear-gradient(90deg, #7fe0ff, #ffd54f);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .result .line { color: #b6d3e6; font-size: 14px; margin-top: 7px; }
+  .wrong-box {
+    background: rgba(255,90,90,.08); border: 1px solid rgba(255,90,90,.22);
+    border-radius: 14px; padding: 12px 14px; margin: 4px 0 16px;
+  }
+  .wrong-box h4 { margin: 0 0 8px; font-size: 13px; color: #ff9e9e; font-weight: 700; }
+  .wrong-item { font-size: 13.5px; color: #c8dcea; line-height: 1.65; padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,.08); }
+  .wrong-item:last-child { border-bottom: none; }
+  .wrong-item b { color: #7fe0ff; }
+  .actions { display: flex; flex-direction: column; gap: 9px; }
+  @media (max-width: 560px) {
+    .hud { gap: 8px; }
+    .icon-btn { width: 34px; height: 34px; font-size: 15px; }
+    #roleName { font-size: 14px; }
+    .hud-sub { font-size: 10px; }
+    .hud-stats { gap: 9px; }
+    .stat { min-width: 28px; }
+    .stat span { font-size: 15px; }
+    .stat small { font-size: 9px; letter-spacing: .5px; }
+    .fish-tag { font-size: 8.5px; padding: 1px 6px; top: -13px; }
+  }
+  @media (max-height: 560px) {
+    .logo { font-size: 24px; } .spec-strip { display: none; } .role-card { padding: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= 首页 ================= -->
+<div id="home" class="home">
+  <h1 class="logo">🎣 英语钓鱼池</h1>
+  <p class="sub">抛竿 → 等咬钩 → 提竿 → 答题收线</p>
+
+  <div class="roles">
+    <div class="role-card brother" data-role="brother">
+      <div class="role-emoji">👦</div>
+      <div class="role-name">弟弟的鱼塘</div>
+      <div class="role-desc">四年级上册<br>认读 · 选词 · 基础语法</div>
+      <div class="role-meta">51 道题 · 6 个单元</div>
+    </div>
+    <div class="role-card sister" data-role="sister">
+      <div class="role-emoji">👧</div>
+      <div class="role-name">姐姐的鱼塘</div>
+      <div class="role-desc">六年级上册<br>拼写 · 句型 · 语法运用</div>
+      <div class="role-meta">60 道题 · 6 个单元</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><i class="dot blue"></i>蓝色系 · 单词鱼</span>
+    <span><i class="dot yellow"></i>金色系 · 语法鱼</span>
+  </div>
+
+  <div class="spec-title">池塘里的 12 种鱼（每条鱼身上 1 个英文单词）</div>
+  <div class="spec-strip" id="specStrip"></div>
+</div>
+
+<!-- ================= 游戏页 ================= -->
+<div id="game" class="game">
+  <div class="hud">
+    <button id="backBtn" class="icon-btn" title="返回">←</button>
+    <div class="hud-title">
+      <div id="roleName">鱼塘</div>
+      <div id="roleSub" class="hud-sub"></div>
+    </div>
+    <div class="hud-stats">
+      <div class="stat"><span id="hudScore">0</span><small>分数</small></div>
+      <div class="stat"><span id="hudCombo">—</span><small>连击</small></div>
+      <div class="stat"><span id="hudFish">0/15</span><small>鱼</small></div>
+    </div>
+  </div>
+  <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+
+  <div id="pond" class="pond">
+    <div class="caustic"></div>
+    <div id="fishLayer" class="fish-layer"></div>
+    <svg id="scene" class="scene" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="hintBar" class="hint-bar">点水面抛竿 🎣</div>
+    <div id="toast" class="toast"></div>
+  </div>
+</div>
+
+<!-- ================= 弹窗 ================= -->
+<div id="overlay" class="overlay"><div id="card" class="card"></div></div>
+
+<script>
+/* =====================================================================
+   英语钓鱼池 v2
+   本次修复/改动：
+   1) 修复旧版 startGame 与 beginRound 各起一个 requestAnimationFrame 的
+      “双动画循环”（画面双倍速、cancel 取消不干净）。
+   2) 修复“重钓错题”失效：旧版 beginRound 会把不足 15 题的错题队列重置换回全库。
+   3) 修复题库轮次丢题：旧版 queue 余量不足 15 时直接丢弃剩余题目。
+   4) 旧版点击鱼直接弹题，没有钓鱼过程；现改为 抛竿→浮漂→鱼靠近→咬钩→提竿→遛鱼→收线。
+   5) 鱼种从 2 色升级为 12 种造型（每种鱼身上 1 个英文单词），颜色按题目稳定分配。
+   6) 统一“累计分/本轮分/进度”口径；修正鱼越界、尺寸取 0、resize 后出界等问题。
+   7) 拼写题支持多词答案、大小写/空格/连字符容错；修复提示遮罩对多词答案的显示。
+   8) 提竿后新增 1 秒“遛鱼”阶段：鱼横冲、浮漂被拽、水花连发、钓者后仰，
+      挣扎衰减后才弹题，手感更接近真钓鱼。
+   9) 修复窄屏（≤560px）顶栏被挤到屏幕外：给纵向 flex 子项加 min-width:0 /
+      max-width:100% 约束；首页 12 种鱼改为 6×2 网格，一屏看全，不再横向截断。
+   ===================================================================== */
+
+/* ------------------------- 一、题库（沿用原题库，答案已逐题核对） ------------------------- */
+const BANK = {
+
+  brother: {
+    title: '弟弟的四年级鱼塘',
+    subtitle: 'PEP 四年级上册 · 单词 + 基础语法',
+    questions: [
+      { id:'b01', unit:'U1', kind:'word', type:'choice', q:'单词 “window” 是什么意思？', options:['窗户','门','黑板','墙'], answer:'窗户' },
+      { id:'b02', unit:'U1', kind:'word', type:'choice', q:'单词 “blackboard” 是什么意思？', options:['黑板','电脑','电扇','图画'], answer:'黑板' },
+      { id:'b03', unit:'U1', kind:'word', type:'choice', q:'“图画；图片” 用英语怎么说？', options:['picture','light','floor','door'], answer:'picture' },
+      { id:'b04', unit:'U1', kind:'word', type:'spell',  q:'看中文写单词：门', answer:'door' },
+      { id:'b05', unit:'U1', kind:'word', type:'choice', q:'单词 “light” 是什么意思？', options:['灯','墙','讲台','座位'], answer:'灯' },
+      { id:'b06', unit:'U1', kind:'word', type:'choice', q:'单词 “fan” 是什么意思？', options:['电扇','电脑','地板','老师'], answer:'电扇' },
+      { id:'b07', unit:'U1', kind:'grammar', type:'choice', q:'___ in the classroom? — Many desks and chairs.', options:["What's","Where's","Who's"], answer:"What's" },
+      { id:'b08', unit:'U1', kind:'grammar', type:'choice', q:'Where ___ my schoolbag?', options:['is','are','am'], answer:'is' },
+      { id:'b09', unit:'U1', kind:'grammar', type:'choice', q:'My picture ___ on the wall.', options:['is','are','be'], answer:'is' },
+      { id:'b10', unit:'U1', kind:'grammar', type:'choice', q:'The desks ___ new.', options:['are','is','am'], answer:'are' },
+
+      { id:'b11', unit:'U2', kind:'word', type:'choice', q:'单词 “schoolbag” 是什么意思？', options:['书包','书桌','铅笔','笔记本'], answer:'书包' },
+      { id:'b12', unit:'U2', kind:'word', type:'choice', q:'单词 “storybook” 是什么意思？', options:['故事书','数学书','英语书','语文书'], answer:'故事书' },
+      { id:'b13', unit:'U2', kind:'word', type:'choice', q:'“笔记本” 用英语怎么说？', options:['notebook','storybook','key','candy'], answer:'notebook' },
+      { id:'b14', unit:'U2', kind:'word', type:'choice', q:'单词 “candy” 是什么意思？', options:['糖果','钥匙','玩具','书包'], answer:'糖果' },
+      { id:'b15', unit:'U2', kind:'word', type:'spell',  q:'看中文写单词：钥匙', answer:'key' },
+      { id:'b16', unit:'U2', kind:'grammar', type:'choice', q:'I have ___ English book.', options:['an','a','the'], answer:'an' },
+      { id:'b17', unit:'U2', kind:'grammar', type:'choice', q:"___ is my schoolbag? — It's black and white.", options:['What colour','What','Where'], answer:'What colour' },
+      { id:'b18', unit:'U2', kind:'grammar', type:'choice', q:'I have two ___ .', options:['storybooks','storybook','a storybook'], answer:'storybooks' },
+
+      { id:'b19', unit:'U3', kind:'word', type:'choice', q:'单词 “friend” 是什么意思？', options:['朋友','家人','老师','同学'], answer:'朋友' },
+      { id:'b20', unit:'U3', kind:'word', type:'choice', q:'“强壮的” 用英语怎么说？', options:['strong','thin','quiet','long'], answer:'strong' },
+      { id:'b21', unit:'U3', kind:'word', type:'choice', q:'单词 “quiet” 是什么意思？', options:['安静的','强壮的','瘦的','长的'], answer:'安静的' },
+      { id:'b22', unit:'U3', kind:'word', type:'spell',  q:'看中文写单词：眼镜', answer:'glasses' },
+      { id:'b23', unit:'U3', kind:'word', type:'choice', q:'“short hair” 是什么意思？', options:['短头发','长头发','大眼睛','小嘴巴'], answer:'短头发' },
+      { id:'b24', unit:'U3', kind:'grammar', type:'choice', q:'He ___ long hair.', options:['has','have','is'], answer:'has' },
+      { id:'b25', unit:'U3', kind:'grammar', type:'choice', q:'___ is your friend? — He is Mike.', options:['Who','What','Where'], answer:'Who' },
+      { id:'b26', unit:'U3', kind:'grammar', type:'choice', q:'She is tall ___ strong.', options:['and','or','but'], answer:'and' },
+
+      { id:'b27', unit:'U4', kind:'word', type:'choice', q:'单词 “bedroom” 是什么意思？', options:['卧室','厨房','客厅','书房'], answer:'卧室' },
+      { id:'b28', unit:'U4', kind:'word', type:'choice', q:'单词 “kitchen” 是什么意思？', options:['厨房','卧室','浴室','客厅'], answer:'厨房' },
+      { id:'b29', unit:'U4', kind:'word', type:'choice', q:'“客厅” 用英语怎么说？', options:['living room','bedroom','bathroom','study'], answer:'living room' },
+      { id:'b30', unit:'U4', kind:'word', type:'choice', q:'单词 “fridge” 是什么意思？', options:['冰箱','沙发','电话','桌子'], answer:'冰箱' },
+      { id:'b31', unit:'U4', kind:'word', type:'spell',  q:'看中文写单词：沙发', answer:'sofa' },
+      { id:'b32', unit:'U4', kind:'grammar', type:'choice', q:'Where ___ the keys?', options:['are','is','am'], answer:'are' },
+      { id:'b33', unit:'U4', kind:'grammar', type:'choice', q:'The cat is ___ the chair.', options:['under','and','very'], answer:'under' },
+      { id:'b34', unit:'U4', kind:'grammar', type:'choice', q:"___ are you? — I'm in the kitchen.", options:['Where','What','Who'], answer:'Where' },
+
+      { id:'b35', unit:'U5', kind:'word', type:'choice', q:'单词 “beef” 是什么意思？', options:['牛肉','鸡肉','面条','汤'], answer:'牛肉' },
+      { id:'b36', unit:'U5', kind:'word', type:'choice', q:'单词 “noodles” 是什么意思？', options:['面条','米饭','面包','汤'], answer:'面条' },
+      { id:'b37', unit:'U5', kind:'word', type:'choice', q:'“蔬菜” 用英语怎么说？', options:['vegetable','beef','soup','bread'], answer:'vegetable' },
+      { id:'b38', unit:'U5', kind:'word', type:'spell',  q:'看中文写单词：勺子', answer:'spoon' },
+      { id:'b39', unit:'U5', kind:'word', type:'choice', q:'单词 “chopsticks” 是什么意思？', options:['筷子','叉子','刀','碗'], answer:'筷子' },
+      { id:'b40', unit:'U5', kind:'grammar', type:'choice', q:"What would you like? — I'd like some ___ .", options:['beef','beefs','a beef'], answer:'beef' },
+      { id:'b41', unit:'U5', kind:'grammar', type:'choice', q:'Pass ___ the bowl, please.', options:['me','I','my'], answer:'me' },
+      { id:'b42', unit:'U5', kind:'grammar', type:'choice', q:'___ you like some soup?', options:['Would','Do','Are'], answer:'Would' },
+
+      { id:'b43', unit:'U6', kind:'word', type:'choice', q:'单词 “parents” 是什么意思？', options:['父母','兄弟','姐妹','祖父母'], answer:'父母' },
+      { id:'b44', unit:'U6', kind:'word', type:'choice', q:'单词 “uncle” 是什么意思？', options:['叔叔','阿姨','表兄弟','哥哥'], answer:'叔叔' },
+      { id:'b45', unit:'U6', kind:'word', type:'choice', q:'“医生” 用英语怎么说？', options:['doctor','nurse','farmer','driver'], answer:'doctor' },
+      { id:'b46', unit:'U6', kind:'word', type:'choice', q:'单词 “nurse” 是什么意思？', options:['护士','医生','司机','农民'], answer:'护士' },
+      { id:'b47', unit:'U6', kind:'word', type:'spell',  q:'看中文写单词：家庭', answer:'family' },
+      { id:'b48', unit:'U6', kind:'word', type:'choice', q:'单词 “farmer” 是什么意思？', options:['农民','工人','司机','厨师'], answer:'农民' },
+      { id:'b49', unit:'U6', kind:'grammar', type:'choice', q:'How many ___ are there in your family?', options:['people','peoples','person'], answer:'people' },
+      { id:'b50', unit:'U6', kind:'grammar', type:'choice', q:"What's ___ job? — He's a doctor.", options:['his','he','him'], answer:'his' },
+      { id:'b51', unit:'U6', kind:'grammar', type:'choice', q:'My parents ___ doctors.', options:['are','is','am'], answer:'are' }
+    ]
+  },
+
+  sister: {
+    title: '姐姐的六年级鱼塘',
+    subtitle: 'PEP 六年级上册 · 拼写 + 语法运用',
+    questions: [
+      { id:'s01', unit:'U1', kind:'word', type:'choice', q:'单词 “bookstore” 是什么意思？', options:['书店','图书馆','邮局','医院'], answer:'书店' },
+      { id:'s02', unit:'U1', kind:'word', type:'choice', q:'单词 “post office” 是什么意思？', options:['邮局','书店','电影院','医院'], answer:'邮局' },
+      { id:'s03', unit:'U1', kind:'word', type:'choice', q:'“电影院” 用英语怎么说？', options:['cinema','hospital','museum','restaurant'], answer:'cinema' },
+      { id:'s04', unit:'U1', kind:'word', type:'spell',  q:'看中文写单词：十字路口', answer:'crossing' },
+      { id:'s05', unit:'U1', kind:'word', type:'choice', q:'单词 “science museum” 是什么意思？', options:['科学博物馆','邮局','书店','餐馆'], answer:'科学博物馆' },
+      { id:'s06', unit:'U1', kind:'word', type:'choice', q:'单词 “restaurant” 是什么意思？', options:['餐馆','医院','书店','电影院'], answer:'餐馆' },
+      { id:'s07', unit:'U1', kind:'grammar', type:'choice', q:'How can I get ___ the bookstore?', options:['to','at','in'], answer:'to' },
+      { id:'s08', unit:'U1', kind:'grammar', type:'choice', q:'Turn left ___ the crossing.', options:['at','on','in'], answer:'at' },
+      { id:'s09', unit:'U1', kind:'grammar', type:'choice', q:"___ is the museum? — It's next to the cinema.", options:['Where','What','How'], answer:'Where' },
+      { id:'s10', unit:'U1', kind:'grammar', type:'choice', q:'Go straight ___ five minutes.', options:['for','at','on'], answer:'for' },
+
+      { id:'s11', unit:'U2', kind:'word', type:'choice', q:'单词 “subway” 是什么意思？', options:['地铁','公共汽车','飞机','轮船'], answer:'地铁' },
+      { id:'s12', unit:'U2', kind:'word', type:'choice', q:'“步行” 用英语怎么说？', options:['on foot','by bus','by bike','by train'], answer:'on foot' },
+      { id:'s13', unit:'U2', kind:'word', type:'choice', q:'单词 “traffic lights” 是什么意思？', options:['交通灯','交通规则','十字路口','人行道'], answer:'交通灯' },
+      { id:'s14', unit:'U2', kind:'word', type:'spell',  q:'看中文写单词：地铁', answer:'subway' },
+      { id:'s15', unit:'U2', kind:'word', type:'choice', q:'单词 “slow down” 是什么意思？', options:['慢下来','停下来','等一等','向右转'], answer:'慢下来' },
+      { id:'s16', unit:'U2', kind:'grammar', type:'choice', q:'I usually go to school ___ foot.', options:['on','by','in'], answer:'on' },
+      { id:'s17', unit:'U2', kind:'grammar', type:'choice', q:'We must ___ the traffic rules.', options:['know','knows','knowing'], answer:'know' },
+      { id:'s18', unit:'U2', kind:'grammar', type:'choice', q:'Stop ___ the red light.', options:['at','on','in'], answer:'at' },
+      { id:'s19', unit:'U2', kind:'grammar', type:'choice', q:'___ do you come to school? — By bus.', options:['How','What','Where'], answer:'How' },
+
+      { id:'s20', unit:'U3', kind:'word', type:'choice', q:'单词 “visit” 是什么意思？', options:['拜访；参观','旅行','买','看'], answer:'拜访；参观' },
+      { id:'s21', unit:'U3', kind:'word', type:'choice', q:'“去旅行” 用英语怎么说？', options:['take a trip','go to the cinema','read a book','take a bus'], answer:'take a trip' },
+      { id:'s22', unit:'U3', kind:'word', type:'choice', q:'单词 “dictionary” 是什么意思？', options:['词典','报纸','漫画书','明信片'], answer:'词典' },
+      { id:'s23', unit:'U3', kind:'word', type:'spell',  q:'看中文写单词：明天', answer:'tomorrow' },
+      { id:'s24', unit:'U3', kind:'word', type:'choice', q:'单词 “newspaper” 是什么意思？', options:['报纸','词典','杂志','漫画书'], answer:'报纸' },
+      { id:'s25', unit:'U3', kind:'word', type:'choice', q:'单词 “comic book” 是什么意思？', options:['漫画书','故事书','词典','报纸'], answer:'漫画书' },
+      { id:'s26', unit:'U3', kind:'grammar', type:'choice', q:'I ___ going to see a film.', options:['am','is','are'], answer:'am' },
+      { id:'s27', unit:'U3', kind:'grammar', type:'choice', q:'She is going to ___ a trip.', options:['take','takes','taking'], answer:'take' },
+      { id:'s28', unit:'U3', kind:'grammar', type:'choice', q:'We ___ visit my grandparents next week.', options:['are going to','is going to','am going to'], answer:'are going to' },
+      { id:'s29', unit:'U3', kind:'grammar', type:'choice', q:'What are you going to do ___ ?', options:['tomorrow','tomorrows','yesterday'], answer:'tomorrow' },
+      { id:'s30', unit:'U3', kind:'grammar', type:'choice', q:'He ___ going to buy a comic book.', options:['is','am','are'], answer:'is' },
+
+      { id:'s31', unit:'U4', kind:'word', type:'choice', q:'单词 “hobby” 是什么意思？', options:['爱好','朋友','笔友','故事'], answer:'爱好' },
+      { id:'s32', unit:'U4', kind:'word', type:'choice', q:'单词 “dancing” 是什么意思？', options:['跳舞','唱歌','读书','游泳'], answer:'跳舞' },
+      { id:'s33', unit:'U4', kind:'word', type:'choice', q:'“读故事” 用英语怎么说？', options:['reading stories','singing songs','doing kung fu','riding a bike'], answer:'reading stories' },
+      { id:'s34', unit:'U4', kind:'word', type:'spell',  q:'看中文写单词：唱歌', answer:'singing' },
+      { id:'s35', unit:'U4', kind:'word', type:'choice', q:'单词 “pen pal” 是什么意思？', options:['笔友','朋友','老师','同学'], answer:'笔友' },
+      { id:'s36', unit:'U4', kind:'grammar', type:'choice', q:'What are your ___ ? — I like reading.', options:['hobbies','hobby','hobbys'], answer:'hobbies' },
+      { id:'s37', unit:'U4', kind:'grammar', type:'choice', q:'I like ___ .', options:['dancing','dance','dances'], answer:'dancing' },
+      { id:'s38', unit:'U4', kind:'grammar', type:'choice', q:'___ he live in Beijing?', options:['Does','Do','Is'], answer:'Does' },
+      { id:'s39', unit:'U4', kind:'grammar', type:'choice', q:'He ___ kung fu every day.', options:['does','do','doing'], answer:'does' },
+      { id:'s40', unit:'U4', kind:'grammar', type:'choice', q:'My pen pal ___ in Australia.', options:['lives','live','living'], answer:'lives' },
+
+      { id:'s41', unit:'U5', kind:'word', type:'choice', q:'单词 “postman” 是什么意思？', options:['邮递员','警察','商人','科学家'], answer:'邮递员' },
+      { id:'s42', unit:'U5', kind:'word', type:'choice', q:'单词 “factory worker” 是什么意思？', options:['工厂工人','商人','飞行员','教练'], answer:'工厂工人' },
+      { id:'s43', unit:'U5', kind:'word', type:'choice', q:'“科学家” 用英语怎么说？', options:['scientist','pilot','coach','postman'], answer:'scientist' },
+      { id:'s44', unit:'U5', kind:'word', type:'spell',  q:'看中文写单词：飞行员', answer:'pilot' },
+      { id:'s45', unit:'U5', kind:'word', type:'choice', q:'单词 “businessman” 是什么意思？', options:['商人','邮递员','警察','渔民'], answer:'商人' },
+      { id:'s46', unit:'U5', kind:'word', type:'choice', q:'单词 “coach” 是什么意思？', options:['教练','厨师','医生','司机'], answer:'教练' },
+      { id:'s47', unit:'U5', kind:'grammar', type:'choice', q:"What ___ he do? — He's a doctor.", options:['does','do','is'], answer:'does' },
+      { id:'s48', unit:'U5', kind:'grammar', type:'choice', q:'He ___ in a hospital.', options:['works','work','working'], answer:'works' },
+      { id:'s49', unit:'U5', kind:'grammar', type:'choice', q:'My mother ___ a nurse.', options:['is','are','am'], answer:'is' },
+      { id:'s50', unit:'U5', kind:'grammar', type:'choice', q:'She works ___ a school.', options:['at','on','of'], answer:'at' },
+
+      { id:'s51', unit:'U6', kind:'word', type:'choice', q:'单词 “angry” 是什么意思？', options:['生气的','害怕的','担心的','难过的'], answer:'生气的' },
+      { id:'s52', unit:'U6', kind:'word', type:'choice', q:'单词 “afraid” 是什么意思？', options:['害怕的','生气的','开心的','累的'], answer:'害怕的' },
+      { id:'s53', unit:'U6', kind:'word', type:'choice', q:'“担心的” 用英语怎么说？', options:['worried','angry','happy','sad'], answer:'worried' },
+      { id:'s54', unit:'U6', kind:'word', type:'spell',  q:'看中文写单词：生气的', answer:'angry' },
+      { id:'s55', unit:'U6', kind:'word', type:'choice', q:'单词 “sad” 是什么意思？', options:['难过的','开心的','生气的','害怕的'], answer:'难过的' },
+      { id:'s56', unit:'U6', kind:'grammar', type:'choice', q:"How ___ he feel? — He's sad.", options:['does','do','is'], answer:'does' },
+      { id:'s57', unit:'U6', kind:'grammar', type:'choice', q:'You should ___ a doctor.', options:['see','sees','seeing'], answer:'see' },
+      { id:'s58', unit:'U6', kind:'grammar', type:'choice', q:'She is angry ___ him.', options:['with','at','to'], answer:'with' },
+      { id:'s59', unit:'U6', kind:'grammar', type:'choice', q:"Don't be ___ . Take a deep breath.", options:['angry','angrily','anger'], answer:'angry' },
+      { id:'s60', unit:'U6', kind:'grammar', type:'choice', q:'He is ill. He ___ see a doctor.', options:['should','shoulds','should to'], answer:'should' }
+    ]
+  }
+};
+
+/* ------------------------- 二、鱼种（12 种造型，正面朝左，100×60 画布） ------------------------- */
+const COOL = [
+  { m:'#4fc3f7', d:'#2a9ccb', l:'#d7f2ff' },
+  { m:'#7ee3c9', d:'#2aa889', l:'#e6fff7' },
+  { m:'#8fa8ff', d:'#5a72d8', l:'#e8ecff' },
+  { m:'#61dcf7', d:'#1f9bb8', l:'#e0fbff' },
+  { m:'#9be7ff', d:'#4aa8c8', l:'#f2fdff' }
+];
+const WARM = [
+  { m:'#ffd54f', d:'#e0a800', l:'#fff6d2' },
+  { m:'#ffb74d', d:'#e07b00', l:'#ffe9cc' },
+  { m:'#ff9f68', d:'#d9642c', l:'#ffe4d6' },
+  { m:'#ffe082', d:'#d4a300', l:'#fffbe0' }
+];
+
+const SPECIES = {
+  clownfish: { cn:'小丑鱼', en:'clownfish', size:1.00, speed:1.00, art: c => `
+    <path d="M72 30 L99 8 L99 52 Z" fill="${c.d}"/>
+    <ellipse cx="45" cy="30" rx="33" ry="19" fill="${c.m}"/>
+    <path d="M26 14 Q33 30 26 46" fill="none" stroke="${c.l}" stroke-width="8"/>
+    <path d="M46 12 Q53 30 46 48" fill="none" stroke="${c.l}" stroke-width="8"/>
+    <path d="M36 11 L44 1 L52 11 Z" fill="${c.d}"/>
+    <ellipse cx="55" cy="37" rx="9" ry="5" fill="${c.d}" opacity=".55"/>
+    <circle cx="22" cy="25" r="6.5" fill="#fff"/><circle cx="20.5" cy="25" r="3.2" fill="#0d2a40"/>` },
+
+  tang: { cn:'蓝吊', en:'tang', size:0.96, speed:0.95, art: c => `
+    <path d="M74 30 L97 15 Q100 30 97 45 Z" fill="${c.d}"/>
+    <ellipse cx="46" cy="30" rx="31" ry="22" fill="${c.m}"/>
+    <path d="M34 16 Q41 30 34 44" fill="none" stroke="${c.d}" stroke-width="6" opacity=".75"/>
+    <path d="M60 21 Q70 30 60 39" fill="none" stroke="${c.d}" stroke-width="3.5" opacity=".5"/>
+    <path d="M40 10 L46 2 L52 10 Z" fill="${c.d}"/>
+    <circle cx="25" cy="26" r="6" fill="#fff"/><circle cx="23.5" cy="26" r="3" fill="#0d2a40"/>` },
+
+  puffer: { cn:'河豚', en:'puffer', size:0.86, speed:0.62, art: c => {
+    let sp = '';
+    for (let i = 0; i < 10; i++) {
+      sp += `<g transform="rotate(${i * 36} 42 30)"><polygon points="42,2 37,11 47,11" fill="${c.d}"/></g>`;
+    }
+    return `${sp}
+    <circle cx="42" cy="30" r="21" fill="${c.m}"/>
+    <path d="M60 30 Q72 26 72 34 Z" fill="${c.d}"/>
+    <circle cx="33" cy="24" r="7" fill="#fff"/><circle cx="31" cy="24" r="3.4" fill="#0d2a40"/>
+    <path d="M34 40 Q40 44 46 40" fill="none" stroke="${c.d}" stroke-width="2" opacity=".6"/>`;
+  } },
+
+  koi: { cn:'锦鲤', en:'koi', size:1.06, speed:0.82, art: c => `
+    <path d="M68 30 Q86 6 99 4 Q92 30 99 56 Q86 54 68 30 Z" fill="${c.l}" opacity=".75"/>
+    <ellipse cx="43" cy="30" rx="35" ry="16" fill="${c.m}"/>
+    <ellipse cx="32" cy="26" rx="9" ry="5.5" fill="${c.d}" opacity=".45"/>
+    <ellipse cx="55" cy="34" rx="10" ry="5" fill="${c.d}" opacity=".45"/>
+    <path d="M28 14 Q36 3 44 14 Z" fill="${c.d}" opacity=".55"/>
+    <circle cx="20" cy="26" r="5.6" fill="#fff"/><circle cx="18.5" cy="26" r="2.6" fill="#0d2a40"/>` },
+
+  bass: { cn:'鲈鱼', en:'bass', size:1.04, speed:1.02, art: c => `
+    <path d="M78 30 L99 19 Q95 30 99 41 Z" fill="${c.d}"/>
+    <path d="M14 30 Q20 15 44 12 Q68 10 80 26 Q82 30 80 34 Q68 50 44 48 Q20 45 14 30 Z" fill="${c.m}"/>
+    <path d="M32 15 L35 5 L39 14 L43 4 L47 14 L51 6 L55 15" fill="none" stroke="${c.d}" stroke-width="2.4" stroke-linejoin="round"/>
+    <path d="M30 40 Q42 45 54 39" fill="none" stroke="${c.l}" stroke-width="2" opacity=".7"/>
+    <circle cx="22" cy="28" r="5.4" fill="#fff"/><circle cx="20.6" cy="28" r="2.6" fill="#0d2a40"/>` },
+
+  hairtail: { cn:'带鱼', en:'hairtail', size:1.14, speed:1.22, art: c => `
+    <path d="M6 30 Q10 19 26 22 Q72 24 97 27 Q99 30 97 33 Q72 36 26 38 Q10 41 6 30 Z" fill="${c.m}"/>
+    <path d="M94 27 Q100 21 100 30 Q100 39 94 33 Z" fill="${c.d}"/>
+    <path d="M20 26 Q50 27 88 28" fill="none" stroke="${c.l}" stroke-width="1.6" opacity=".6"/>
+    <circle cx="14" cy="28" r="3.2" fill="#fff"/><circle cx="13" cy="28" r="1.6" fill="#0d2a40"/>` },
+
+  shark: { cn:'鲨鱼', en:'shark', size:1.18, speed:0.74, art: c => `
+    <path d="M76 30 L99 7 Q92 30 99 53 Z" fill="${c.d}"/>
+    <path d="M6 30 Q16 13 40 11 Q64 10 80 21 Q88 26 85 33 Q70 47 40 49 Q16 47 6 30 Z" fill="${c.m}"/>
+    <path d="M40 12 L51 1 L58 13 Z" fill="${c.d}"/>
+    <path d="M26 41 L23 49 L33 43 Z" fill="${c.d}"/>
+    <path d="M14 32 Q28 36 40 34" fill="none" stroke="${c.l}" stroke-width="2" opacity=".55"/>
+    <circle cx="20" cy="27" r="4.2" fill="#fff"/><circle cx="18.5" cy="27" r="2.1" fill="#0d2a40"/>` },
+
+  octopus: { cn:'章鱼', en:'octopus', size:0.92, speed:0.6, art: c => {
+    let tents = '';
+    for (let i = 0; i < 5; i++) {
+      const x = 24 + i * 9;
+      tents += `<path d="M${x} 32 Q${x - 5} 45 ${x + 2} 53" fill="none" stroke="${c.d}" stroke-width="5" stroke-linecap="round"/>`;
+    }
+    return `<path d="M16 34 Q16 4 44 4 Q72 4 72 34 Z" fill="${c.m}"/>${tents}
+    <path d="M64 32 Q75 30 73 22" fill="none" stroke="${c.d}" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="34" cy="24" r="5" fill="#fff"/><circle cx="33" cy="24" r="2.4" fill="#0d2a40"/>
+    <circle cx="54" cy="24" r="5" fill="#fff"/><circle cx="53" cy="24" r="2.4" fill="#0d2a40"/>`;
+  } },
+
+  ray: { cn:'魔鬼鱼', en:'ray', size:1.08, speed:0.88, art: c => `
+    <path d="M8 30 Q38 8 68 16 L94 30 L68 44 Q38 52 8 30 Z" fill="${c.m}"/>
+    <path d="M66 30 Q84 30 99 37" fill="none" stroke="${c.d}" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M40 30 Q54 21 64 30" fill="none" stroke="${c.l}" stroke-width="1.8" opacity=".55"/>
+    <circle cx="26" cy="26" r="2.8" fill="#0d2a40"/><circle cx="30" cy="35" r="2.8" fill="#0d2a40"/>` },
+
+  angelfish: { cn:'神仙鱼', en:'angelfish', size:0.98, speed:0.9, art: c => `
+    <path d="M58 30 L80 12 L80 48 Z" fill="${c.d}"/>
+    <path d="M16 30 Q22 2 44 7 Q64 12 59 30 Q64 48 44 53 Q22 58 16 30 Z" fill="${c.m}"/>
+    <path d="M34 8 Q41 30 34 52" fill="none" stroke="${c.l}" stroke-width="6" opacity=".85"/>
+    <path d="M48 12 Q54 30 48 50" fill="none" stroke="${c.d}" stroke-width="3" opacity=".5"/>
+    <circle cx="27" cy="27" r="4.6" fill="#fff"/><circle cx="25.6" cy="27" r="2.3" fill="#0d2a40"/>` },
+
+  squid: { cn:'鱿鱼', en:'squid', size:1.00, speed:0.98, art: c => `
+    <path d="M40 30 Q46 13 70 13 Q92 17 94 30 Q92 43 70 47 Q46 47 40 30 Z" fill="${c.m}"/>
+    <path d="M88 18 Q98 24 90 30 Q98 36 88 42" fill="none" stroke="${c.d}" stroke-width="2.4" opacity=".75"/>
+    <path d="M40 25 Q28 18 13 20" fill="none" stroke="${c.d}" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M40 30 Q25 29 9 30" fill="none" stroke="${c.d}" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M40 35 Q28 41 13 40" fill="none" stroke="${c.d}" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M52 20 Q68 26 78 30" fill="none" stroke="${c.l}" stroke-width="1.8" opacity=".6"/>
+    <circle cx="56" cy="26" r="3.6" fill="#fff"/><circle cx="54.8" cy="26" r="1.9" fill="#0d2a40"/>
+    <circle cx="56" cy="34" r="3.6" fill="#fff"/><circle cx="54.8" cy="34" r="1.9" fill="#0d2a40"/>` },
+
+  sardine: { cn:'沙丁鱼', en:'sardine', size:0.82, speed:1.26, art: c => `
+    <path d="M82 30 L99 21 Q96 30 99 39 Z" fill="${c.d}"/>
+    <path d="M12 30 Q22 18 46 16 Q67 15 82 23 Q86 30 82 37 Q67 45 46 44 Q22 42 12 30 Z" fill="${c.m}"/>
+    <path d="M40 16 L44 9 L50 16 Z" fill="${c.d}"/>
+    <path d="M20 24 Q30 21 44 22" fill="none" stroke="${c.l}" stroke-width="1.8" opacity=".8"/>
+    <circle cx="24" cy="27" r="3.4" fill="#fff"/><circle cx="22.6" cy="27" r="1.7" fill="#0d2a40"/>` }
+};
+const SPECIES_KEYS = Object.keys(SPECIES);
+
+/* ------------------------- 三、工具 ------------------------- */
+const $ = s => document.querySelector(s);
+const $pond = document.getElementById('pond');
+const $fishLayer = document.getElementById('fishLayer');
+const $scene = document.getElementById('scene');
+const $hint = document.getElementById('hintBar');
+const $toast = document.getElementById('toast');
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function rand(a, b) { return a + Math.random() * (b - a); }
+function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+function hashStr(s) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function normWord(s) {
+  return String(s).toLowerCase().replace(/[\s\-'’]/g, '');
+}
+
+/* 每条鱼按题目 id 生成专属配色：单词鱼冷色系、语法鱼金色系，保证同题稳定、不同题不同色 */
+function paletteFor(id, isWord) {
+  const h = hashStr(id + '#pal');
+  const hue = isWord ? (176 + h % 86) : (24 + h % 38);
+  const sat = isWord ? (58 + h % 18) : (78 + h % 12);
+  return {
+    m: `hsl(${hue}, ${sat}%, 62%)`,
+    d: `hsl(${hue}, ${sat}%, 42%)`,
+    l: `hsl(${hue}, 88%, 92%)`
+  };
+}
+
+/* ------------------------- 四、音效 ------------------------- */
+let audioCtx = null;
+function unlockAudio() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  } catch (e) { /* 静默失败 */ }
+}
+function tone(freq, dur, type, gain, delay) {
+  try {
+    if (!audioCtx) return;
+    const t0 = audioCtx.currentTime + (delay || 0);
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type || 'sine';
+    o.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(gain || 0.07, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t0); o.stop(t0 + dur + 0.02);
+  } catch (e) { /* 静默失败 */ }
+}
+const sfx = {
+  cast:    () => { tone(520, .12, 'triangle', .05); tone(300, .16, 'sine', .04, .04); },
+  plop:    () => { tone(180, .14, 'sine', .07); tone(120, .2, 'sine', .05, .05); },
+  nibble:  () => { tone(700, .05, 'square', .03); },
+  bite:    () => { tone(980, .07, 'square', .06); tone(1300, .09, 'square', .05, .07); },
+  strike:  () => { tone(240, .22, 'sawtooth', .07); tone(760, .16, 'triangle', .05, .05); },
+  miss:    () => { tone(210, .22, 'sawtooth', .05); },
+  reel:    () => { for (let i = 0; i < 5; i++) tone(560 + i * 40, .04, 'square', .025, i * .12); },
+  win:     () => { tone(880, .12, 'sine', .06); tone(1180, .14, 'sine', .06, .1); tone(1480, .2, 'sine', .06, .22); },
+  wrong:   () => { tone(240, .26, 'sawtooth', .06); },
+  cheer:   () => { tone(660, .1, 'sine', .05); tone(990, .12, 'sine', .05, .08); }
+};
+
+/* ------------------------- 五、状态 ------------------------- */
+const MAX_FISH = 5;
+const ROUND_SIZE = 15;
+
+const state = {
+  role: null, bank: null,
+  queue: [], pending: [],
+  fishes: [],
+  score: 0, roundScore: 0,
+  combo: 0, maxCombo: 0,
+  correct: 0, wrong: 0, answered: 0,
+  roundSize: ROUND_SIZE,
+  wrongList: [],
+  running: false, paused: false, ended: false,
+  rafId: null, lastTs: 0,
+  W: 0, H: 0, dockH: 48, ax: 80, ay: 0,
+  cheerT: 0
+};
+
+const rod = {
+  st: 'idle',           // idle | fly | float | bite | fight | reel | miss
+  t: 0, biteT: 0,
+  bob: { x: 0, y: 0 },
+  from: { x: 0, y: 0 },
+  tgt: { x: 0, y: 0 },
+  tip: { x: 0, y: 0 },
+  fish: null,
+  ripples: []
+};
+
+/* ------------------------- 六、几何 ------------------------- */
+function geom() {
+  state.W = $pond.clientWidth || 600;
+  state.H = $pond.clientHeight || 400;
+  state.dockH = clamp(state.H * 0.13, 42, 58);
+  state.ax = clamp(state.W * 0.15, 52, 118);
+  state.ay = state.H - state.dockH + 6;
+  $hint.style.bottom = (state.dockH + 8) + 'px';
+  $scene.setAttribute('width', state.W);
+  $scene.setAttribute('height', state.H);
+  $scene.setAttribute('viewBox', `0 0 ${state.W} ${state.H}`);
+}
+
+function tipTarget() {
+  const ax = state.ax, ay = state.ay;
+  switch (rod.st) {
+    case 'idle':  return { x: ax + 58, y: ay - 112 };
+    case 'fly':   return { x: ax + 86, y: ay - 92 };
+    case 'float':
+    case 'bite':  return { x: ax + 82, y: ay - 88 };
+    case 'fight': return { x: ax + 28, y: ay - 144 };
+    case 'reel':  return { x: ax + 38, y: ay - 138 };
+    case 'miss':  return { x: ax + 62, y: ay - 104 };
+    default:      return { x: ax + 62, y: ay - 104 };
+  }
+}
+
+/* ------------------------- 七、鱼 ------------------------- */
+const FW = 84, FH = 50;
+
+function liveFishCount() {
+  return state.fishes.filter(f => !f.dead && f.mode !== 'escape').length;
+}
+
+function spawnFish(q) {
+  const isWord = q.kind === 'word';
+  const h = hashStr(q.id);
+  const key = SPECIES_KEYS[hashStr(q.id + '#sp') % SPECIES_KEYS.length];
+  const sp = SPECIES[key];
+  const pal = paletteFor(q.id, isWord);
+  const scale = clamp(state.W / 620, 0.78, 1.12);
+
+  const w = FW * sp.size * scale;
+  const hgt = FH * sp.size * scale;
+
+  const el = document.createElement('div');
+  el.className = 'fish';
+  el.style.width = w + 'px';
+  el.style.height = hgt + 'px';
+  el.innerHTML = `<svg class="fish-art" viewBox="0 0 100 60" preserveAspectRatio="none">${sp.art(pal)}</svg>
+    <div class="fish-tag ${isWord ? 'tw' : 'tg'}">${sp.en}</div>`;
+  $fishLayer.appendChild(el);
+
+  const waterBottom = state.H - state.dockH - 8;
+  const f = {
+    q, el, sp, pal, w, h: hgt,
+    x: rand(6, Math.max(7, state.W - w - 6)),
+    y: rand(24, Math.max(26, waterBottom - hgt)),
+    angle: rand(0, Math.PI * 2),
+    speed: rand(38, 62) * sp.speed,
+    mode: 'swim', dir: 1, life: 0, changeT: rand(0.6, 2.4),
+    nibT: 0, nibDelay: rand(0.7, 1.6), escT: 0, vx: 0, vy: 0, dead: false
+  };
+  state.fishes.push(f);
+  return f;
+}
+
+function refillFish() {
+  let guard = 0;
+  while (liveFishCount() < MAX_FISH && state.pending.length > 0 && guard++ < 30) {
+    spawnFish(state.pending.shift());
+  }
+}
+
+function removeFish(f) {
+  f.dead = true;
+  if (f.el && f.el.parentNode) f.el.remove();
+  const i = state.fishes.indexOf(f);
+  if (i >= 0) state.fishes.splice(i, 1);
+}
+
+function fishEscape(f, awayFrom) {
+  f.mode = 'escape';
+  f.escT = f.life;
+  const cx = f.x + f.w / 2, cy = f.y + f.h / 2;
+  const dx = cx - (awayFrom ? awayFrom.x : cx), dy = cy - (awayFrom ? awayFrom.y : cy - 40);
+  const d = Math.hypot(dx, dy) || 1;
+  f.vx = dx / d * 210; f.vy = dy / d * 130;
+  if (!f.el.dataset.esc) {
+    f.el.dataset.esc = '1';
+    f.el.style.transition = 'opacity .9s ease';
+    setTimeout(() => { f.el.style.opacity = '0'; }, 60);
+  }
+}
+
+function updateFish(dt) {
+  const W = state.W, waterBottom = state.H - state.dockH - 8;
+
+  for (let i = state.fishes.length - 1; i >= 0; i--) {
+    const f = state.fishes[i];
+    f.life += dt;
+
+    if (f.mode === 'swim') {
+      f.changeT -= dt;
+      if (f.changeT <= 0) { f.changeT = rand(1.1, 2.6); f.angle = rand(0, Math.PI * 2); }
+      f.x += Math.cos(f.angle) * f.speed * dt;
+      f.y += Math.sin(f.angle) * f.speed * 0.62 * dt;
+
+      if (f.x < 0) { f.x = 0; f.angle = Math.PI - f.angle; }
+      if (f.x + f.w > W) { f.x = W - f.w; f.angle = Math.PI - f.angle; }
+      if (f.y < 20) { f.y = 20; f.angle = -f.angle; }
+      if (f.y + f.h > waterBottom) { f.y = waterBottom - f.h; f.angle = -f.angle; }
+      f.dir = Math.cos(f.angle) >= 0 ? 1 : -1;
+
+    } else if (f.mode === 'approach') {
+      const cx = f.x + f.w / 2, cy = f.y + f.h / 2;
+      const dx = rod.bob.x - cx, dy = (rod.bob.y + 10) - cy;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 26) { f.mode = 'nibble'; f.nibT = 0; }
+      else {
+        const sp = Math.min(f.speed * 1.3, 130);
+        f.x += dx / dist * sp * dt;
+        f.y += dy / dist * sp * 0.85 * dt;
+        f.dir = dx >= 0 ? 1 : -1;
+        f.angle = Math.atan2(dy, dx);
+      }
+
+    } else if (f.mode === 'nibble') {
+      f.nibT += dt;
+      const a = f.nibT * 2.6;
+      const cx = rod.bob.x + Math.cos(a) * 15;
+      const cy = rod.bob.y + 14 + Math.sin(a * 1.5) * 8;
+      f.x += (cx - f.w / 2 - f.x) * Math.min(1, dt * 8);
+      f.y += (cy - f.h / 2 - f.y) * Math.min(1, dt * 8);
+      f.dir = Math.cos(a + Math.PI / 2) >= 0 ? 1 : -1;
+
+    } else if (f.mode === 'hooked') {
+      // 咬死的鱼直接贴在浮漂上，保证收线时“鱼跟着钩走”
+      const cx = rod.bob.x + Math.sin(f.life * 15) * 6;
+      const cy = rod.bob.y + 10 + Math.cos(f.life * 11) * 5;
+      f.x = cx - f.w / 2;
+      f.y = cy - f.h / 2;
+      f.dir = Math.sin(f.life * 9) >= 0 ? 1 : -1;
+
+    } else if (f.mode === 'escape') {
+      f.x += f.vx * dt;
+      f.y += f.vy * dt;
+      f.dir = f.vx >= 0 ? 1 : -1;
+      if (f.life - f.escT > 1.05) { removeFish(f); continue; }
+    }
+
+    const rot = f.mode === 'hooked' ? Math.sin(f.life * 17) * 7 : Math.sin(f.life * 1.6) * 2;
+    f.el.style.transform =
+      `translate(${f.x.toFixed(1)}px, ${f.y.toFixed(1)}px) rotate(${rot.toFixed(1)}deg)`;
+    const art = f.el.firstElementChild;
+    if (art) art.style.transform = `scaleX(${f.dir >= 0 ? -1 : 1})`;
+  }
+
+  separateFish(dt);
+}
+
+/* 鱼与鱼之间简单避让，避免叠在一起看不清 */
+function separateFish(dt) {
+  const W = state.W, waterBottom = state.H - state.dockH - 8;
+  const arr = state.fishes;
+  for (let a = 0; a < arr.length; a++) {
+    const f = arr[a];
+    if (f.mode !== 'swim' || f.dead) continue;
+    for (let b = a + 1; b < arr.length; b++) {
+      const o = arr[b];
+      if (o.mode !== 'swim' || o.dead) continue;
+      const dx = (f.x + f.w / 2) - (o.x + o.w / 2);
+      const dy = (f.y + f.h / 2) - (o.y + o.h / 2);
+      const px = (f.w + o.w) * 0.6, py = (f.h + o.h) * 0.62;
+      if (Math.abs(dx) < px && Math.abs(dy) < py) {
+        const p = (1 - Math.max(Math.abs(dx) / px, Math.abs(dy) / py)) * 120 * dt;
+        const sx = dx === 0 ? (Math.random() < .5 ? -1 : 1) : Math.sign(dx);
+        const sy = dy === 0 ? (Math.random() < .5 ? -1 : 1) : Math.sign(dy);
+        f.x += sx * p; f.y += sy * p * .7;
+        o.x -= sx * p; o.y -= sy * p * .7;
+        f.x = clamp(f.x, 0, W - f.w); f.y = clamp(f.y, 20, waterBottom - f.h);
+        o.x = clamp(o.x, 0, W - o.w); o.y = clamp(o.y, 20, waterBottom - o.h);
+      }
+    }
+  }
+}
+
+/* ------------------------- 八、钓竿状态机 ------------------------- */
+function addRipple(x, y, size) {
+  rod.ripples.push({ x, y, r: 6, max: size || 46, a: 0.55 });
+}
+
+function clearRod() {
+  rod.st = 'idle'; rod.t = 0; rod.biteT = 0;
+  rod.fish = null;
+}
+
+function doCast(x, y) {
+  if (state.paused || rod.st !== 'idle') return;
+  const waterBottom = state.H - state.dockH - 8;
+  const tx = clamp(x, 34, state.W - 34);
+  const ty = clamp(y, 26, waterBottom - 20);
+
+  rod.from = { x: rod.bob.x, y: rod.bob.y };
+  rod.tgt = { x: tx, y: ty };
+  rod.t = 0;
+  rod.st = 'fly';
+  sfx.cast();
+
+  // 选最靠近落点的一条鱼来咬钩
+  let best = null, bd = 1e9;
+  state.fishes.forEach(f => {
+    if (f.mode !== 'swim') return;
+    const d = Math.hypot((f.x + f.w / 2) - tx, (f.y + f.h / 2) - ty);
+    if (d < bd) { bd = d; best = f; }
+  });
+  rod.fish = best;
+}
+
+function startBite() {
+  rod.st = 'bite';
+  rod.t = 0;
+  rod.biteT = 0;
+  sfx.bite();
+  addRipple(rod.bob.x, rod.bob.y + 6, 40);
+  flashHint('咬钩了！点屏幕提竿', true);
+  showToast('咬钩！', 'gold');
+}
+
+function missNoFish(msg) {
+  rod.st = 'miss';
+  rod.t = 0;
+  rod.from = { x: rod.bob.x, y: rod.bob.y };
+}
+
+function doStrike() {
+  if (state.paused) return;
+
+  if (rod.st === 'bite') {
+    const f = rod.fish;
+    if (!f) {
+      rod.st = 'miss'; rod.t = 0; rod.from = { x: rod.bob.x, y: rod.bob.y };
+      flashHint('空竿了…', false);
+      return;
+    }
+    rod.st = 'fight';
+    rod.t = 0;
+    rod.nextRip = 0.06;
+    sfx.strike();
+    addRipple(rod.bob.x, rod.bob.y, 54);
+    $pond.classList.add('shake');
+    setTimeout(() => $pond.classList.remove('shake'), 300);
+    if (f) f.mode = 'hooked';
+    $toast.classList.remove('show');
+    clearTimeout(toastTimer);
+    flashHint('中鱼！遛鱼中…稳住', true);
+    // 遛鱼期间保持动画（不锁帧），挣扎结束再弹题
+    return;
+  }
+}
+
+function doEarly() {
+  // 抛竿后、鱼还没咬钩就提竿：空竿
+  if (state.paused) return;
+  if (rod.st !== 'float' && rod.st !== 'fly') return;
+  sfx.miss();
+  missNoFish();
+  showToast('太早了，鱼被吓跑了…', true);
+  state.combo = 0;
+  if (rod.fish) {
+    const f = rod.fish;
+    if (f.mode === 'approach' || f.mode === 'nibble') {
+      state.pending.push(f.q);
+      fishEscape(f, rod.bob);
+    }
+    rod.fish = null;
+  }
+  updateHud();
+}
+
+function updateRod(dt) {
+  rod.t += dt;
+  const tt = tipTarget();
+  rod.tip.x += (tt.x - rod.tip.x) * Math.min(1, dt * 11);
+  rod.tip.y += (tt.y - rod.tip.y) * Math.min(1, dt * 11);
+
+  switch (rod.st) {
+    case 'idle': {
+      rod.bob.x = rod.tip.x + 4;
+      rod.bob.y = rod.tip.y + 34 + Math.sin(rod.t * 1.8) * 2.5;
+      break;
+    }
+    case 'fly': {
+      const p = Math.min(1, rod.t / 0.55);
+      const e = 1 - Math.pow(1 - p, 3);
+      rod.bob.x = rod.from.x + (rod.tgt.x - rod.from.x) * e;
+      rod.bob.y = rod.from.y + (rod.tgt.y - rod.from.y) * e - Math.sin(p * Math.PI) * 74;
+      if (p >= 1) {
+        rod.st = 'float'; rod.t = 0; rod.bob.x = rod.tgt.x; rod.bob.y = rod.tgt.y;
+        sfx.plop(); addRipple(rod.bob.x, rod.bob.y, 58); addRipple(rod.bob.x, rod.bob.y, 34);
+        flashHint('等鱼靠近、咬钩…', false);
+        if (rod.fish) rod.fish.mode = 'approach';
+        else showToast('这片没鱼，换个位置抛竿', false);
+      }
+      break;
+    }
+    case 'float': {
+      rod.bob.y = rod.tgt.y + Math.sin(rod.t * 3.1) * 1.8;
+      rod.bob.x = rod.tgt.x + Math.sin(rod.t * 1.3) * 1.2;
+      const f = rod.fish;
+      if (f && f.mode === 'nibble' && f.nibT > f.nibDelay) { sfx.nibble(); startBite(); }
+      if (rod.t > 8.5) { // 兜底：迟迟不咬钩
+        if (!f) {
+          // 池里没鱼可咬：直接收竿，避免无鱼状态下停住
+          rod.st = 'miss'; rod.t = 0; rod.from = { x: rod.bob.x, y: rod.bob.y };
+          showToast('这里没鱼，换个位置抛竿', true);
+        } else if (f.mode === 'swim' || f.mode === 'approach') {
+          f.mode = 'nibble'; f.nibT = 0;
+        }
+      }
+      break;
+    }
+    case 'bite': {
+      rod.biteT += dt;
+      rod.bob.y = rod.tgt.y + 8 + Math.sin(rod.biteT * 26) * 2.5;
+      if (rod.biteT > 1.7) { // 没提竿，跑鱼
+        const f = rod.fish;
+        sfx.miss();
+        showToast('鱼把饵抢走了…', true);
+        state.combo = 0;
+        if (f) { state.pending.push(f.q); fishEscape(f, rod.bob); }
+        rod.fish = null;
+        rod.st = 'miss'; rod.t = 0; rod.from = { x: rod.bob.x, y: rod.bob.y };
+        flashHint('空钩了，再抛一竿', false);
+        updateHud();
+      }
+      break;
+    }
+    case 'fight': {
+      // 遛鱼：鱼往外拽，浮漂左右被拉扯，张力逐渐衰减
+      if (rod.fish) rod.fish.mode = 'hooked';
+      const drag = Math.max(0, 1 - rod.t / 1.0);
+      const bx = rod.tgt.x + Math.sin(rod.t * 13) * 22 * drag + Math.sin(rod.t * 27) * 5;
+      const by = rod.tgt.y + Math.cos(rod.t * 10) * 9 * drag;
+      rod.bob.x = clamp(bx, 8, state.W - 8);
+      rod.bob.y = clamp(by, 20, state.H - state.dockH - 10);
+      if (rod.t > (rod.nextRip || 0)) {
+        rod.nextRip = rod.t + 0.26;
+        addRipple(rod.bob.x, rod.bob.y, 30);
+        if (rod.fish && Math.random() < 0.5) sfx.nibble();
+      }
+      if (rod.t >= 1.0) {
+        state.paused = true;
+        if (rod.fish) openQuestion(rod.fish);
+      }
+      break;
+    }
+    case 'reel': {
+      const p = Math.min(1, rod.t / 1.0);
+      const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      rod.bob.x = rod.from.x + (rod.tip.x - rod.from.x) * e + Math.sin(p * Math.PI * 5) * 12 * (1 - p);
+      rod.bob.y = rod.from.y + (rod.tip.y + 30 - rod.from.y) * e + Math.cos(p * Math.PI * 4) * 10 * (1 - p);
+      if (p >= 1) { landFish(); }
+      break;
+    }
+    case 'miss': {
+      const p = Math.min(1, rod.t / 0.55);
+      rod.bob.x = rod.from.x + (rod.tip.x + 4 - rod.from.x) * p;
+      rod.bob.y = rod.from.y + (rod.tip.y + 34 - rod.from.y) * p;
+      if (p >= 1) { rod.st = 'idle'; rod.t = 0; flashHint('点水面抛竿 🎣', false); }
+      break;
+    }
+  }
+
+  // 水花涟漪
+  for (let i = rod.ripples.length - 1; i >= 0; i--) {
+    const r = rod.ripples[i];
+    r.r += dt * 70;
+    r.a -= dt * 0.62;
+    if (r.r > r.max || r.a <= 0) rod.ripples.splice(i, 1);
+  }
+}
+
+/* ------------------------- 九、收线 / 结算一条鱼 ------------------------- */
+function landFish() {
+  const f = rod.fish;
+  const x = rod.tip.x, y = rod.tip.y + 20;
+  addRipple(x, y, 50);
+  sfx.cheer();
+  state.cheerT = 1.2;
+  popScore(x, y - 10, '+' + (state.lastGain || 10));
+  popEmoji(x, y);
+
+  if (f) {
+    const fx = f.x + f.w / 2, fy = f.y + f.h / 2;
+    removeFish(f);
+    popEmoji(fx, fy);
+  }
+  rod.fish = null;
+  rod.st = 'idle'; rod.t = 0;
+  state.paused = false;
+  updateHud();
+  refillFish();
+  flashHint('点水面抛竿 🎣', false);
+}
+
+function popScore(x, y, text) {
+  const d = document.createElement('div');
+  d.className = 'pop';
+  d.textContent = text;
+  d.style.left = x + 'px';
+  d.style.top = y + 'px';
+  $pond.appendChild(d);
+  setTimeout(() => d.remove(), 1000);
+}
+function popEmoji(x, y) {
+  const d = document.createElement('div');
+  d.className = 'pop-fish';
+  d.textContent = '🐟';
+  d.style.left = x + 'px';
+  d.style.top = y + 'px';
+  $pond.appendChild(d);
+  setTimeout(() => d.remove(), 1050);
+}
+
+/* ------------------------- 十、题目弹窗 ------------------------- */
+function maskHint(ans) {
+  return ans.split(' ').map(w =>
+    w.split('').map((ch, i) => (i === 0 ? ch : '_')).join(' ')
+  ).join('   /   ');
+}
+
+function openQuestion(fish) {
+  const q = fish.q;
+  const isWord = q.kind === 'word';
+  const head = `<div class="qtag ${isWord ? 'tw' : 'tg'}">${isWord ? '🔵 单词鱼' : '🟡 语法鱼'} · ${q.unit} · ${fish.sp.cn} ${fish.sp.en}</div>`;
+
+  $('#overlay').classList.add('show');
+  const card = $('#card');
+
+  if (q.type === 'choice') {
+    const opts = shuffle(q.options.slice());
+    card.innerHTML = `
+      ${head}
+      <div class="qtext">${q.q}</div>
+      <div class="opts">
+        ${opts.map((o, i) => `<button class="opt" data-i="${i}">${'ABCD'[i]}. ${o}</button>`).join('')}
+      </div>
+      <div class="feedback" id="feedback"></div>`;
+
+    const btns = Array.from(card.querySelectorAll('.opt'));
+    btns.forEach((btn, i) => {
+      btn.onclick = () => {
+        if (btn.disabled) return;
+        btns.forEach(b => b.disabled = true);
+        const ok = opts[i] === q.answer;
+        const rightIdx = opts.indexOf(q.answer);
+        if (rightIdx >= 0) btns[rightIdx].classList.add('correct');
+        if (!ok) btn.classList.add('wrong');
+        resolveQuestion(fish, ok);
+      };
+    });
+  } else {
+    card.innerHTML = `
+      ${head}
+      <div class="qtext">${q.q}</div>
+      <div class="hint">提示：${maskHint(q.answer)}</div>
+      <input id="spellInput" class="spell" autocomplete="off" autocapitalize="off"
+             autocorrect="off" spellcheck="false" placeholder="输入英文单词">
+      <button id="spellSubmit" class="btn primary" style="width:100%;margin-top:12px;">确定</button>
+      <div class="feedback" id="feedback"></div>`;
+
+    const input = $('#spellInput');
+    const submitBtn = $('#spellSubmit');
+
+    const submit = () => {
+      if (input.disabled) return;
+      const val = input.value.trim();
+      if (!val) { input.focus(); return; }
+      const ok = normWord(val) === normWord(q.answer);
+      input.disabled = true;
+      submitBtn.disabled = true;
+      input.style.borderColor = ok ? '#4cd964' : '#ff5a5a';
+      resolveQuestion(fish, ok);
+    };
+
+    submitBtn.onclick = submit;
+    input.onkeydown = e => { if (e.key === 'Enter') submit(); };
+    setTimeout(() => input.focus(), 150);
+  }
+}
+
+function resolveQuestion(fish, ok) {
+  const fb = $('#feedback');
+  let gain = 0;
+  state.answered++;
+  state.roundScore = state.roundScore || 0;
+
+  if (ok) {
+    state.correct++;
+    state.combo++;
+    state.maxCombo = Math.max(state.maxCombo, state.combo);
+    const base = fish.q.type === 'spell' ? 15 : 10;
+    const bonus = Math.min(state.combo - 1, 3) * 5;
+    gain = base + bonus;
+    state.score += gain;
+    state.roundScore += gain;
+    state.lastGain = gain;
+    fb.innerHTML = `<span class="ok">✅ 正确！ +${gain} 分</span>${bonus ? `<span style="color:#ffd76b;font-size:13px;">　连击 x${state.combo} +${bonus}</span>` : ''}`;
+    sfx.win();
+  } else {
+    state.wrong++;
+    state.combo = 0;
+    state.wrongList.push({ q: fish.q, correct: fish.q.answer });
+    fb.innerHTML = `<span class="no">❌ 正确答案是：<b>${fish.q.answer}</b></span>`;
+    sfx.wrong();
+  }
+
+  fb.innerHTML += `<button class="btn primary next" id="nextBtn">${ok ? '收线上鱼 🎣' : '鱼脱钩了，继续'}</button>`;
+  const nextBtn = $('#nextBtn');
+  nextBtn.onclick = () => {
+    $('#overlay').classList.remove('show');
+    $('#card').innerHTML = '';
+    $('#overlay').classList.remove('show');
+    if (ok) {
+      // 收线
+      rod.st = 'reel'; rod.t = 0;
+      rod.from = { x: rod.bob.x, y: rod.bob.y };
+      state.paused = false;
+      sfx.reel();
+      flashHint('收线中…', false);
+    } else {
+      // 脱钩跑鱼
+      rod.st = 'miss'; rod.t = 0;
+      rod.from = { x: rod.bob.x, y: rod.bob.y };
+      state.paused = false;
+      fishEscape(fish, rod.bob);
+      rod.fish = null;
+      flashHint('脱钩了…', false);
+      // 错的鱼不再回流题库，计入本轮已答
+      setTimeout(() => { updateHud(); }, 60);
+    }
+    updateHud();
+  };
+  setTimeout(() => nextBtn.focus(), 80);
+  updateHud();
+}
+
+/* ------------------------- 十一、HUD / 轮次 / 结算 ------------------------- */
+function updateHud() {
+  $('#hudScore').textContent = state.score;
+  $('#hudCombo').textContent = state.combo > 0 ? 'x' + state.combo : '—';
+  const done = state.answered;
+  $('#hudFish').textContent = done + '/' + state.roundSize;
+  const pct = state.roundSize ? Math.min(100, (done / state.roundSize) * 100) : 0;
+  $('#progressBar').style.width = pct + '%';
+}
+
+let hintTimer = null;
+function flashHint(text, hot) {
+  $hint.textContent = text;
+  $hint.classList.toggle('hot', !!hot);
+}
+
+let toastTimer = null;
+function showToast(text, kind) {
+  $toast.textContent = text;
+  $toast.classList.toggle('gold', kind === 'gold');
+  $toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $toast.classList.remove('show'), 1500);
+}
+
+function startRound(questions) {
+  // 清理上一轮
+  state.fishes.forEach(f => f.el && f.el.remove());
+  state.fishes = [];
+  rod.ripples = [];
+  clearRod();
+  $fishLayer.innerHTML = '';
+  $('#overlay').classList.remove('show');
+  $('#card').innerHTML = '';
+
+  state.paused = false;
+  state.ended = false;
+  state.answered = 0; state.correct = 0; state.wrong = 0;
+  state.combo = 0; state.roundScore = 0; state.wrongList = [];
+  state.cheerT = 0;
+
+  if (questions && questions.length) {
+    state.queue = shuffle(questions.slice());
+    state.roundSize = state.queue.length;
+  } else {
+    if (state.queue.length < ROUND_SIZE) {
+      state.queue = state.queue.concat(shuffle(state.bank.questions.slice()));
+    }
+    state.roundSize = ROUND_SIZE;
+  }
+
+  state.pending = state.queue.splice(0, Math.min(state.roundSize, state.queue.length));
+  state.roundSize = state.pending.length || state.roundSize;
+
+  geom();
+  const t0 = tipTarget();
+  rod.tip.x = t0.x; rod.tip.y = t0.y;
+  rod.bob.x = t0.x + 4; rod.bob.y = t0.y + 34;
+
+  refillFish();
+  updateHud();
+  flashHint('点水面抛竿 🎣', false);
+
+  state.running = true;
+  state.lastTs = 0;
+  if (!state.rafId) state.rafId = requestAnimationFrame(loop);
+}
+
+function startGame(role) {
+  const bank = BANK[role];
+  if (!bank) return;
+  unlockAudio();
+
+  state.role = role;
+  state.bank = bank;
+  state.queue = shuffle(bank.questions.slice());
+  state.score = 0;
+
+  $('#home').style.display = 'none';
+  $('#game').classList.add('active');
+  $('#roleName').textContent = bank.title;
+  $('#roleSub').textContent = bank.subtitle;
+
+  state.rafId && cancelAnimationFrame(state.rafId);
+  state.rafId = null;
+
+  startRound(null);
+}
+
+function endRound() {
+  if (state.ended) return;
+  state.ended = true;
+  state.running = false;
+  if (state.rafId) cancelAnimationFrame(state.rafId);
+  state.rafId = null;
+
+  const hasWrong = state.wrongList.length > 0;
+  let wrongHTML = '';
+  if (hasWrong) {
+    wrongHTML = `<div class="wrong-box">
+      <h4>🐟 错题鱼（共 ${state.wrongList.length} 条）</h4>
+      ${state.wrongList.map(w => {
+        const tag = w.q.kind === 'word' ? '🔵' : '🟡';
+        return `<div class="wrong-item">${tag} ${w.q.q}<br>正确答案：<b>${w.correct}</b></div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  $('#card').innerHTML = `
+    <div class="qtag tw">🎉 本轮结束 · ${state.bank.title}</div>
+    <div class="result">
+      <div class="big">${state.roundScore} 分</div>
+      <div class="line">本轮得分 · 累计 ${state.score} 分</div>
+      <div class="line">钓到 ${state.answered} 条鱼 · 答对 ${state.correct} · 答错 ${state.wrong}</div>
+      <div class="line">最高连击 x${state.maxCombo}</div>
+    </div>
+    ${wrongHTML}
+    <div class="actions">
+      ${hasWrong ? '<button class="btn warn" id="retryBtn">重钓错题 🎯</button>' : ''}
+      <button class="btn primary" id="againBtn">再玩一轮</button>
+      <button class="btn ghost" id="homeBtn">换个角色</button>
+    </div>`;
+  $('#overlay').classList.add('show');
+  sfx.win();
+
+  const wrongQs = state.wrongList.map(w => w.q);
+  if (hasWrong) {
+    $('#retryBtn').onclick = () => {
+      if (!wrongQs.length) return;
+      $('#overlay').classList.remove('show');
+      startRound(wrongQs);
+    };
+  }
+  $('#againBtn').onclick = () => {
+    $('#overlay').classList.remove('show');
+    startRound(null);
+  };
+  $('#homeBtn').onclick = () => backHome();
+}
+
+function backHome() {
+  state.running = false;
+  state.paused = false;
+  if (state.rafId) cancelAnimationFrame(state.rafId);
+  state.rafId = null;
+  $('#overlay').classList.remove('show');
+  $('#card').innerHTML = '';
+  $('#game').classList.remove('active');
+  $('#home').style.display = 'flex';
+  $fishLayer.innerHTML = '';
+  state.fishes = [];
+  rod.ripples = [];
+  clearRod();
+}
+
+/* ------------------------- 十二、渲染 ------------------------- */
+function dockArt(W, H, dock) {
+  const y0 = H - dock;
+  return `
+    <rect x="0" y="${y0}" width="${W}" height="${dock}" fill="url(#woodGrad)"/>
+    <rect x="0" y="${y0}" width="${W}" height="2" fill="rgba(255,240,210,.35)"/>
+    ${Array.from({ length: Math.ceil(W / 46) }, (_, i) =>
+      `<line x1="${i * 46}" y1="${y0 + 3}" x2="${i * 46}" y2="${H}" stroke="rgba(0,0,0,.35)" stroke-width="1.5"/>`).join('')}
+    <line x1="0" y1="${y0 + dock * 0.55}" x2="${W}" y2="${y0 + dock * 0.55}" stroke="rgba(0,0,0,.22)" stroke-width="1"/>
+    <rect x="0" y="${H - 8}" width="${W}" height="8" fill="rgba(0,0,0,.3)"/>`;
+}
+
+function bobberArt(b) {
+  const dangle = Math.sin(b.x * 0.1) * 1.5;
+  return `<g transform="translate(${b.x} ${b.y})">
+    <line x1="0" y1="-12" x2="0" y2="-3" stroke="rgba(232,246,255,.9)" stroke-width="2"/>
+    <ellipse cx="0" cy="4" rx="7.5" ry="8.5" fill="#ff5252"/>
+    <path d="M-7.5 4 Q0 -5 7.5 4 Q0 12 -7.5 4 Z" fill="#fff"/>
+    <ellipse cx="0" cy="4" rx="7.5" ry="8.5" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1"/>
+    <line x1="0" y1="12" x2="0" y2="19" stroke="rgba(235,250,255,.65)" stroke-width="1.2"/>
+    <path d="M0 19 q4 4 0 7" fill="none" stroke="rgba(235,250,255,.65)" stroke-width="1.2"/>
+    <circle cx="${dangle}" cy="26" r="1.6" fill="rgba(235,250,255,.5)"/>
+  </g>`;
+}
+
+function anglerArt(now) {
+  const ax = state.ax, ay = state.ay;
+  const st = rod.st;
+  let lean = 0;
+  if (st === 'fly') lean = 7;
+  else if (st === 'fight' || st === 'reel') lean = -11;
+  else if (st === 'bite') lean = -3;
+
+  const cheer = state.cheerT > 0;
+  const sway = Math.sin(now * 0.003) * 1.6;
+
+  const hand = { x: ax + 10, y: ay - 38 };
+  const tip = rod.tip;
+  const bend = (st === 'fight' || st === 'reel' || st === 'land') ? 15 : 5;
+  const cx = (hand.x + tip.x) / 2 + bend;
+  const cy = (hand.y + tip.y) / 2 - bend * 0.5;
+
+  const rodPath = `<path d="M${hand.x} ${hand.y} Q${cx} ${cy} ${tip.x} ${tip.y}"
+      fill="none" stroke="url(#rodGrad)" stroke-width="3.2" stroke-linecap="round"/>`;
+
+  const reelCircle = `<circle cx="${hand.x - 2}" cy="${hand.y + 3}" r="4.5" fill="#20364a" stroke="#cfe6f5" stroke-width="1.2"/>`;
+
+  const arms = cheer
+    ? `<path d="M-6 -30 L-15 -46" stroke="#ffd9b8" stroke-width="5" stroke-linecap="round"/>
+       <path d="M6 -30 L15 -46" stroke="#ffd9b8" stroke-width="5" stroke-linecap="round"/>`
+    : `<path d="M-4 -30 L8 -34" stroke="#ffd9b8" stroke-width="5" stroke-linecap="round"/>`;
+
+  return `
+  <g transform="translate(${ax} ${ay}) rotate(${lean + sway}) scale(1.12)">
+    <ellipse cx="2" cy="1" rx="16" ry="3.4" fill="rgba(0,0,0,.32)"/>
+    <path d="M-5 0 L-5 -14" stroke="#17394f" stroke-width="6.5" stroke-linecap="round"/>
+    <path d="M6 0 L5 -14" stroke="#17394f" stroke-width="6.5" stroke-linecap="round"/>
+    <path d="M-9 -14 Q-11 -29 0 -34 Q11 -29 9 -14 Z" fill="#2f78a8"/>
+    <path d="M-9 -14 Q-4 -20 0 -18 Q4 -20 9 -14 Z" fill="#1f5f8a"/>
+    <circle cx="0" cy="-43" r="8.2" fill="#ffd9b8"/>
+    <path d="M-8.5 -47 Q0 -57 9 -47 Z" fill="#ff8a5c"/>
+    <path d="M8 -48 L16 -46" stroke="#ff8a5c" stroke-width="3.2" stroke-linecap="round"/>
+    ${arms}
+  </g>
+  ${rodPath}
+  ${reelCircle}
+  ${cheer ? `<text x="${ax + 26}" y="${ay - 62}" font-size="16">✨</text>` : ''}`;
+}
+
+function render(now) {
+  const W = state.W, H = state.H;
+  if (!W || !H) return;
+
+  let svg = `<defs>
+    <linearGradient id="woodGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7a5236"/><stop offset="55%" stop-color="#5b3a25"/><stop offset="100%" stop-color="#3a2417"/>
+    </linearGradient>
+    <linearGradient id="rodGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e2b877"/><stop offset="60%" stop-color="#b98a4c"/><stop offset="100%" stop-color="#8b6231"/>
+    </linearGradient>
+    <radialGradient id="glowGrad" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="rgba(190,240,255,.35)"/><stop offset="100%" stop-color="rgba(190,240,255,0)"/>
+    </radialGradient>
+  </defs>`;
+
+  svg += dockArt(W, H, state.dockH);
+
+  // 涟漪
+  rod.ripples.forEach(r => {
+    svg += `<circle cx="${r.x}" cy="${r.y}" r="${r.r.toFixed(1)}" fill="none"
+      stroke="rgba(200,240,255,${Math.max(0, r.a).toFixed(2)})" stroke-width="1.8"/>`;
+  });
+
+  const tip = rod.tip;
+  let sag = 16;
+  if (rod.st === 'fly') sag = 12;
+  else if (rod.st === 'bite') sag = 6;
+  else if (rod.st === 'fight') sag = 4;
+  else if (rod.st === 'reel') sag = 2;
+  else if (rod.st === 'miss') sag = 20;
+
+  const mx = (tip.x + rod.bob.x) / 2;
+  const my = (tip.y + rod.bob.y) / 2 + sag;
+  const tight = (rod.st === 'fight' || rod.st === 'reel');
+
+  svg += `<path d="M${tip.x.toFixed(1)} ${tip.y.toFixed(1)} Q${mx.toFixed(1)} ${my.toFixed(1)} ${rod.bob.x.toFixed(1)} ${(rod.bob.y - 8).toFixed(1)}"
+    fill="none" stroke="rgba(236,250,255,${tight ? 0.95 : 0.5})" stroke-width="${tight ? 2.2 : 1.3}"/>`;
+
+  if (rod.st === 'bite') {
+    const k = Math.max(0, 1 - rod.biteT / 1.7);
+    svg += `<circle cx="${rod.bob.x}" cy="${rod.bob.y}" r="${(16 + 22 * (1 - k)).toFixed(1)}"
+      fill="none" stroke="rgba(255,224,130,${(0.15 + k * 0.6).toFixed(2)})" stroke-width="2.5"/>`;
+    svg += `<circle cx="${rod.bob.x}" cy="${rod.bob.y}" r="22" fill="url(#glowGrad)"/>`;
+    svg += `<text x="${rod.bob.x}" y="${rod.bob.y - 30}" font-size="22" font-weight="bold"
+      fill="#ffe082" text-anchor="middle">！</text>`;
+  }
+
+  svg += bobberArt(rod.bob);
+  svg += anglerArt(now);
+
+  $scene.innerHTML = svg;
+}
+
+/* ------------------------- 十三、主循环 ------------------------- */
+function loop(ts) {
+  state.rafId = null;
+  if (!state.running) return;
+  state.rafId = requestAnimationFrame(loop);
+
+  if (!state.lastTs) state.lastTs = ts;
+  let dt = (ts - state.lastTs) / 1000;
+  state.lastTs = ts;
+  if (dt > 0.05) dt = 0.05;
+  if (dt < 0) dt = 0;
+
+  if (!state.paused) {
+    updateFish(dt);
+    updateRod(dt);
+    if (state.cheerT > 0) state.cheerT -= dt;
+    maybeEndRound();
+  }
+  render(ts);
+}
+
+function maybeEndRound() {
+  if (state.ended || state.paused) return;
+  if (rod.st !== 'idle') return;
+  if (state.pending.length > 0) return;
+  if (state.fishes.length > 0) return;
+  if (state.answered <= 0) return;
+  endRound();
+}
+
+/* ------------------------- 十四、事件 ------------------------- */
+$pond.addEventListener('pointerdown', e => {
+  unlockAudio();
+  if (state.paused || !state.running) return;
+  const r = $pond.getBoundingClientRect();
+  const x = e.clientX - r.left;
+  const y = e.clientY - r.top;
+
+  if (rod.st === 'idle') doCast(x, y);
+  else if (rod.st === 'bite') doStrike();
+  else if (rod.st === 'float' || rod.st === 'fly') doEarly();
+});
+
+window.addEventListener('keydown', e => {
+  if (e.code !== 'Space') return;
+  e.preventDefault();
+  if (!state.running || state.paused) return;
+  if (rod.st === 'idle') doCast(state.W * 0.55, (state.H - state.dockH) * 0.55);
+  else if (rod.st === 'bite') doStrike();
+  else if (rod.st === 'float' || rod.st === 'fly') doEarly();
+});
+
+document.querySelectorAll('.role-card').forEach(card => {
+  card.addEventListener('click', () => {
+    unlockAudio();
+    sfx.cast();
+    startGame(card.dataset.role);
+  });
+});
+$('#backBtn').onclick = backHome;
+
+let resizeTimer = null;
+function onResize() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (!state.running) return;
+    geom();
+    const waterBottom = state.H - state.dockH - 8;
+    state.fishes.forEach(f => {
+      f.x = clamp(f.x, 0, Math.max(0, state.W - f.w));
+      f.y = clamp(f.y, 0, Math.max(0, waterBottom - f.h));
+    });
+    rod.tgt.x = clamp(rod.tgt.x, 34, state.W - 34);
+    rod.tgt.y = clamp(rod.tgt.y, 26, waterBottom - 20);
+  }, 160);
+}
+window.addEventListener('resize', onResize);
+window.addEventListener('orientationchange', onResize);
+
+/* ------------------------- 十五、启动 ------------------------- */
+(function init() {
+  // 首页鱼种展示
+  const strip = document.getElementById('specStrip');
+  SPECIES_KEYS.forEach((k, i) => {
+    const sp = SPECIES[k];
+    const pal = (i % 2 ? WARM : COOL)[i % 4];
+    const d = document.createElement('div');
+    d.className = 'spec';
+    d.innerHTML = `<svg viewBox="0 0 100 60" preserveAspectRatio="none">${sp.art(pal)}</svg><span>${sp.en}</span>`;
+    strip.appendChild(d);
+  });
+})();
+</script>
+</body>
+</html>
